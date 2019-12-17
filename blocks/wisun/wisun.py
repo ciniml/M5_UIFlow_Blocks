@@ -760,7 +760,9 @@ class WiSUN(object):
                     else:
                         no_response_count = 0
                         frame = EchonetLiteFrame(response)
-                        if frame.is_valid():
+                        if not frame.is_valid():
+                            self.__l.info("invalid frame {0}".format(bytes(response)))
+                        else:
                             seoj = frame.seoj()
                             esv  = frame.esv()
                             
