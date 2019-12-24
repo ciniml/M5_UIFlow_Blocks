@@ -210,6 +210,22 @@ class BP35A1(object):
         if not await self.write_command_wait(b'SKSREG SFE 0', b'OK', timeout=1000):
             self.__l.error("Failed to initialize the module.")
         
+        # Check ERXUDP format
+        self.write_command(b'ROPT')
+        response = await self.read_response_into(self.__buffer, 0, timeout=500) 
+        if response is None or response < 5 or self.__buffer[0:3] != b'OK ':
+            self.__l.error('failed to read ERXUDP format')
+            return False
+        if self.__buffer[3:5] == b'00':
+            self.__l.info('ERXUDP format is binary. No need to change.')
+        else:
+            # ERXUDP output is printable hexadecimal format.
+            self.__l.info('Changing ERXUDP format...')
+            self.write_command(b'WOPT 00')
+            if await self.wait_response(b'OK', timeout=500) is None:
+                self.__l.error('Failed to change ERXUDP format.')
+                return False
+        
         return True
         
     async def set_password(self, password: str, timeout:int = None) -> bool:
