@@ -211,18 +211,20 @@ class BP35A1(object):
             self.__l.error("Failed to initialize the module.")
         
         # Check ERXUDP format
-        self.write_command(b'ROPT')
-        response = await self.read_response_into(self.__buffer, 0, timeout=500) 
+        self.write_command(b'ROPT', eol=b'\r')
+        response = await self.read_response_into(self.__buffer, 0, eol_cr_only=True, timeout=5000) 
+        if response is not None:
+            self.__l.debug('ROPT: %s', self.__buffer[0:response])
         if response is None or response < 5 or self.__buffer[0:3] != b'OK ':
-            self.__l.error('failed to read ERXUDP format')
+            self.__l.error('failed to read ERXUDP format.')
             return False
         if self.__buffer[3:5] == b'00':
             self.__l.info('ERXUDP format is binary. No need to change.')
         else:
             # ERXUDP output is printable hexadecimal format.
             self.__l.info('Changing ERXUDP format...')
-            self.write_command(b'WOPT 00')
-            if await self.wait_response(b'OK', timeout=500) is None:
+            self.write_command(b'WOPT 00', eol=b'\r')
+            if await self.wait_response(b'OK', eol_cr_only=True, timeout=5000) is None:
                 self.__l.error('Failed to change ERXUDP format.')
                 return False
         
@@ -398,10 +400,10 @@ class BP35A1(object):
     def read(self, length:int) -> bytes:
         return self.__uart.read(length)
     
-    def write_command(self, command:bytes) -> None:
+    def write_command(self, command:bytes, eol:bytes=b'\r\n') -> None:
         self.__l.debug('<- %s', command)
         self.__uart.write(command)
-        self.__uart.write(b'\r\n')
+        self.__uart.write(eol)
 
     async def write_command_wait(self, command:bytes, expected_response:bytes, timeout:Optional[int] = None) -> bool:
         self.write_command(command)
@@ -413,7 +415,7 @@ class BP35A1(object):
         n = self.__uart.readinto(char_buffer)
         return -1 if n is None or n == 0 else char_buffer[0]
     
-    async def read_response_into(self, buffer:bytearray, offset:int=0, timeout:Optional[int] = None) -> Optional[int]:
+    async def read_response_into(self, buffer:bytearray, offset:int=0, eol_cr_only:bool=False, timeout:Optional[int] = None) -> Optional[int]:
         buffer_length = len(buffer)
         response_length = 0
         state = 0
@@ -431,7 +433,12 @@ class BP35A1(object):
             
             #self.__l.debug('S:%d R:%c', state, c)
             if state == 0 and c == BP35A1.CR:
-                state = 0 if response_length == 0 else 1
+                if response_length == 0:
+                    state = 0
+                elif eol_cr_only:
+                    return response_length
+                else:
+                    state = 1
             elif state == 0 and c == BP35A1.LF:
                 state = 0
             elif state == 0:
@@ -446,12 +453,12 @@ class BP35A1(object):
             elif state == 1:
                 state = 0
     
-    async def wait_response(self, expected_response:bytes, max_response_size:int=1024, timeout:Optional[int] = None) -> Optional[bytes]:
+    async def wait_response(self, expected_response:bytes, max_response_size:int=1024, eol_cr_only:bool=False, timeout:Optional[int] = None) -> Optional[bytes]:
         self.__l.debug('wait_response: target=%s', expected_response)
         response = memoryview(self.__buffer) if len(self.__buffer) <= max_response_size else bytearray(max_response_size)
         expected_length = len(expected_response)
         while True:
-            length = await self.read_response_into(response, timeout=timeout)
+            length = await self.read_response_into(response, eol_cr_only=eol_cr_only, timeout=timeout)
             if length is None: return None
             self.__l.debug("wait_response: response=%s", response[:length])
             if length >= expected_length and response[:expected_length] == expected_response:
