@@ -53,6 +53,8 @@ BP35A1を使ったカスタム・モジュール用の接続設定を返しま�
 
 ### stateブロック
 
+![stateブロック](figure/get_wisun_state.png)
+
 現在のWi-SUNモジュールとスマート・メーターの接続状態を取得します。
 
 戻り値は以下のいずれかの `str` 型の値です。
@@ -68,6 +70,8 @@ BP35A1を使ったカスタム・モジュール用の接続設定を返しま�
 
 ### valuesブロック
 
+![valuesブロック](figure/get_wisun_values.png)
+
 現在の状態や測定値を取得します。
 
 戻り値は以下のキーと値を持つ `dict` 型です。
@@ -81,11 +85,15 @@ BP35A1を使ったカスタム・モジュール用の接続設定を返しま�
 
 ### values_blockedブロック
 
+![stateブロック](figure/get_wisun_values_blocked.png)
+
 新しい状態や測定値を取得します。`values`ブロックと異なり、新しい状態に遷移する、もしくは新しい値を取得するまで実行を中断します。
 
 戻り値は `values`ブロックと同じです。
 
 ### waitブロック
+
+![stateブロック](wisun/../figure/wait_wisun_update.png)
 
 新しい状態に遷移する、もしくは新しい値を取得するまで実行を中断します。
 
