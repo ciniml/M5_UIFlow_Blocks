@@ -99,5 +99,5 @@ BP35A1を使ったカスタム・モジュール用の接続設定を返しま�
 
 ## サンプル
 
-[examples/wisun](../examples/wisun) がM5Stack Wi-SUN モジュール用のサンプル・コードです。
+[examples/wisun](../../examples/wisun) がM5Stack Wi-SUN モジュール用のサンプル・コードです。
 
