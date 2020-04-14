@@ -1,4 +1,4 @@
-# SORACOM 3Gモジュール・サンプル
+# SORACOM 3Gブロック サンプル
 
 ## 概要
 
@@ -9,7 +9,7 @@ SORACOM 3Gブロックを使って`www.example.com`の内容を取得して液�
 ## 動作環境
 
 * UI Flow v1.5.0以降
-* SORACOM 3G モジュール
+* [M5Stack用 3G拡張ボード](https://soracom.jp/products/kit/3g_module_m5stack/)
 
 ## 使い方
 

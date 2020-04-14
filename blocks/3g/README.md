@@ -2,7 +2,7 @@
 
 ## 概要
 
-SORACOM 3GモジュールをUI Flowから使用するカスタム･ブロック (非公式)
+SORACOMコンソールから購入できる [M5Stack用 3G拡張ボード](https://soracom.jp/products/kit/3g_module_m5stack/) をUI Flowから使用するカスタム･ブロック (非公式)
 
 ソラコムおよびスイッチサイエンス `非公式` ブロックですので、ソラコムやスイッチサイエンスに問い合わせたりしないでください。
 
@@ -16,12 +16,12 @@ SORACOM 3GモジュールをUI Flowから使用するカスタム･ブロック
 
 ### 3G startブロック
 
-SORACOM 3Gモジュールを初期化して、通信処理を開始します。
+3G拡張ボードを初期化して、通信処理を開始します。
 
 
 ### 3G wait connectionブロック
 
-SORACOM 3Gモジュールがネットワークに接続するまで待ちます。
+3G拡張ボードがネットワークに接続するまで待ちます。
 
 ### 3G disconnect WLAN
 
@@ -38,7 +38,7 @@ SORACOM 3Gモジュールがネットワークに接続するまで待ちます�
 
 ## サンプル
 
-[examples/3g](../../examples/3g) がSORACOM 3Gモジュール用のサンプルコードです。
+[examples/3g](../../examples/3g) が3G拡張ボード用のサンプルコードです。
 
 ## ライセンス
 gsm.pyはBoost Software Licenseですので、ソースコード上にライセンス表記が残ってさえ居ればコピーして使って構いません。
