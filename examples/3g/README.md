@@ -4,6 +4,8 @@
 
 SORACOM 3Gブロックを使って`www.example.com`の内容を取得して液晶画面に表示するサンプル
 
+<img alt="ブロック" width="50%" src="./sample.png"></img>
+
 ## 動作環境
 
 * UI Flow v1.5.0以降
