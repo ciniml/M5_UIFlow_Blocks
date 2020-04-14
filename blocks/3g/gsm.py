@@ -129,24 +129,24 @@ class _GSM(object):
         "Initialize I/O ports and peripherals to communicate with the module."
         self.__l.debug('initialize')
         
-        self.__uart.init(baudrate=115200, timeout=30)
+        self.__uart.init(baudrate=115200, timeout=100)
 
-    async def reset(self) -> bool:
+    async def reset(self, timeout=1000) -> bool:
         "Turn on or reset the module and wait until the LTE commucation gets available."
         self.__urcs = []
 
         self.write_command(b'~+++')
-        if not await self.write_command_wait(b'AT', b'OK'):    # Check if the module can accept commands.
+        if not await self.write_command_wait(b'AT', b'OK', timeout=timeout):    # Check if the module can accept commands.
             self.__l.info("The module did not respond.")
             return False
-        if not await self.write_command_wait(b'ATZ', b'OK'):  # Reset module.
+        if not await self.write_command_wait(b'ATZ', b'OK', timeout=timeout):  # Reset module.
             self.__l.info("Failed to reset the module.")
             return False
         await asyncio.sleep_ms(100)
-        if not await self.write_command_wait(b'ATE0', b'OK'):  # Disable command echo
+        if not await self.write_command_wait(b'ATE0', b'OK', timeout=timeout):  # Disable command echo
             self.__l.info("Failed to disable command echo.")
             return False
-        if not await self.write_command_wait(b'AT+CFUN=1', b'OK'):  # Enable RF.
+        if not await self.write_command_wait(b'AT+CFUN=1', b'OK', timeout=timeout):  # Enable RF.
             self.__l.info("Failed to enable RF.")
             return False
         
@@ -200,7 +200,7 @@ class _GSM(object):
             if stat == '4':  # Not registered and not searching (0), or unknown (4).
                 raise GSMError('Invalid registration status.')
             elif stat == '0':
-                await asyncio.sleep_ms(1)
+                await asyncio.sleep_ms(500)
             elif stat == '1' or stat == '5': # Registered.
                 break
         # No action
@@ -259,22 +259,7 @@ class _GSM(object):
         return await self.wait_response(expected_response, timeout=timeout) is not None
 
 
-    async def read_response_into(self, buffer:WriteableBufferType, offset:int=0, timeout:Optional[int]=None) -> Optional[int]:
-        while True:
-            length = await self.__read_response_into(buffer=buffer, offset=offset, timeout=timeout)
-            mv = memoryview(buffer)
-            if length is not None and length >= 8 and mv[0:8] == b"+QIURC: ":
-                #self.__l.info("URC: {0}".format(str(mv[:length], 'utf-8')))
-                if length > 17 and mv[8:16] == b'"closed"':
-                    connect_id = int(str(mv[17:length], 'utf-8'))
-                    self.__l.info("Connection {0} closed".format(connect_id))
-                    self.__urcs.append( ("closed", connect_id) )
-                    continue
-            
-            return length
-    
-
-    async def __read_response_into(self, buffer:WriteableBufferType, offset:int=0, timeout:int=None) -> Optional[int]:
+    async def read_response_into(self, buffer:WriteableBufferType, offset:int=0, timeout:int=None) -> Optional[int]:
         buffer_length = len(buffer)
         response_length = 0
         state = 0
@@ -282,7 +267,7 @@ class _GSM(object):
         cb = bytearray(1)
         while True:
             n = self.__uart.readinto(cb) #type: int
-            if n == 0:
+            if n is None:
                 if timeout is not None and (time.ticks_ms()-start_time_ms) >= timeout:
                     return None
                 try:
@@ -292,7 +277,7 @@ class _GSM(object):
                 continue
             c = cb[0]
 
-            #self.__l.debug('S:%d R:%c', state, c)
+            # self.__l.debug('S:%d R:%c', state, c)
             if state == 0 and c == _GSM.CR:
                 state = 1
             elif state == 1 and c == _GSM.LF:
