@@ -1,3 +1,8 @@
+"""
+Module to control SORACOM 3G module from Switch Science
+License: Boost Software License 1.0
+"""
+
 import time
 import machine
 import network
