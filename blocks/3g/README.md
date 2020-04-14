@@ -38,7 +38,7 @@ SORACOM 3Gモジュールがネットワークに接続するまで待ちます�
 
 ## サンプル
 
-[examples/wisun](../../examples/wisun) がM5Stack Wi-SUN モジュール用のサンプル・コードです。
+[examples/3g](../../examples/3g) がSORACOM 3Gモジュール用のサンプルコードです。
 
 ## ライセンス
 gsm.pyはBoost Software Licenseですので、ソースコード上にライセンス表記が残ってさえ居ればコピーして使って構いません。
