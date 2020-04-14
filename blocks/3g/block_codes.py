@@ -27,9 +27,11 @@ import network
 
 if 'disconnect_wlan' not in locals():
     def disconnect_wlan():
-        w = network.WLAN()
-        w.disconnect()
-
+        try:
+            w = network.WLAN()
+            w.disconnect()
+        except: # OSError
+            pass
 disconnect_wlan()
 
 # get_ifconfig
